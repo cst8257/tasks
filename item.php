@@ -36,14 +36,14 @@ if (isset($_GET['id'])) {
             <input class="form-control" id="task" name="task" value="<?php echo $item['task']; ?>">
           </div>
           <div class="form-group mb-3">
-            <input type="checkbox" class="form-check-input me-2" id="completed" name="completed" <?php if ($item['completed']) : ?>checked<?php endif; ?>>
+            <input type="checkbox" class="form-check-input me-2" id="completed" name="completed" <?php if (isset($item['completed']) && $item['completed']) : ?>checked<?php endif; ?>>
             <label class="form-check-label" for="completed">Completed</label>
           </div>
           <div class="from-group mb-3">
             <label class="form-label" for="priority">Priority</label>
             <select class="form-select" id="priority" name="priority">
               <?php foreach ($priorities as $val => $priority) : ?>
-                <option value="<?php echo $val; ?>" <?php if ($item['priority'] === $val): ?>selected<?php endif; ?>><?php echo $priority; ?></option>
+                <option value="<?php echo $val; ?>" <?php if ($item['priority'] == $val): ?>selected<?php endif; ?>><?php echo $priority; ?></option>
               <?php endforeach; ?>
             </select>
           </div>
