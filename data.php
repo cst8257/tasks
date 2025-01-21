@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 $items = [
   [
     'id' => 1,
@@ -19,6 +21,12 @@ $items = [
     'priority' => 0
   ]
 ];
+
+if (isset($_SESSION['items'])) {
+  $items = $_SESSION['items'];
+} else {
+  $_SESSION['items'] = $items;
+}
 
 $priorities = [
   'None',

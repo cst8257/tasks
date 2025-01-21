@@ -1,3 +1,25 @@
+<?php
+require "data.php";
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  array_push($items, [
+    'id' => end($items)['id'] + 1,
+    'task' => $_POST['task'],
+    'completed' => false,
+    'priority' => 0
+  ]);
+
+  $_SESSION['items'] = $items;
+}
+
+$todo = array_filter($items, function ($item) {
+  return !$item['completed'];
+});
+
+$done = array_filter($items, function ($item) {
+  return $item['completed'];
+});
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -20,24 +42,16 @@
         <div class="bg-light border border-1 p-4">
           <p class="mb-1 fst-italic">To Do</p>
           <div class="list-group">
-            <div class="list-group-item d-flex justify-content-between">
-              <a class="text-black text-decoration-none" href="item.php">Buy Milk</a>
-              <div class="fw-bold text-danger text-end">
-                <span>!</span>
-              </div>
-            </div>
+            <?php foreach ($todo as $item) : ?>
+              <?php require "list-item.php"; ?>
+            <?php endforeach; ?>
           </div>
 
           <p class="mb-1 mt-3 fst-italic">Done</p>
           <div class="list-group">
-            <div class="list-group-item d-flex justify-content-between">
-              <a class="text-black text-decoration-none" href="item.php">Feed Cat</a>
-              <div class="fw-bold text-danger text-end">
-                <span>!</span>
-                <span>!</span>
-                <span>!</span>
-              </div>
-            </div>
+            <?php foreach ($done as $item) : ?>
+              <?php require "list-item.php"; ?>
+            <?php endforeach; ?>
           </div>
         </div>
       </div>

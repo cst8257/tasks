@@ -1,3 +1,19 @@
+<?php
+require "data.php";
+
+if (isset($_GET['id'])) {
+  $item = current(array_filter($items, function ($item) {
+    return $item['id'] == $_GET['id'];
+  }));
+
+  if (!$item) {
+    header("Location: index.php");
+  }
+} else {
+  header("Location: index.php");
+  exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -17,19 +33,18 @@
         <form method="post" class="bg-light border border-1 p-4">
           <div class="form-group mb-3">
             <label class="form-label" for="task">Task</label>
-            <input class="form-control" id="task" name="task" value="Buy Milk">
+            <input class="form-control" id="task" name="task" value="<?php echo $item['task']; ?>">
           </div>
           <div class="form-group mb-3">
-            <input type="checkbox" class="form-check-input me-2" id="completed" name="completed">
+            <input type="checkbox" class="form-check-input me-2" id="completed" name="completed" <?php if ($item['completed']) : ?>checked<?php endif; ?>>
             <label class="form-check-label" for="completed">Completed</label>
           </div>
           <div class="from-group mb-3">
             <label class="form-label" for="priority">Priority</label>
             <select class="form-select" id="priority" name="priority">
-              <option value="0">None</option>
-              <option value="1" selected>Low</option>
-              <option value="2">Medium</option>
-              <option value="3">High</option>
+              <?php foreach ($priorities as $val => $priority) : ?>
+                <option value="<?php echo $val; ?>" <?php if ($item['priority'] === $val): ?>selected<?php endif; ?>><?php echo $priority; ?></option>
+              <?php endforeach; ?>
             </select>
           </div>
 
