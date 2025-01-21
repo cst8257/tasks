@@ -1,7 +1,31 @@
 <?php
 require "data.php";
+require "functions.php";
 
-if (isset($_GET['id'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $item = sanitize($_POST);
+  $errors = validate($item);
+
+  if (count($errors) === 0) {
+    $items = array_map(function ($item) {
+      if ($item['id'] == $_POST['id']) {
+        return [
+          'id' => $_POST['id'],
+          'task' => $_POST['task'],
+          'completed' => isset($_POST['completed']),
+          'priority' => (int)$_POST['priority']
+        ];
+      }
+
+      return $item;
+    }, $items);
+
+    $_SESSION['items'] = $items;
+
+    header("Location: index.php");
+    exit();
+  }
+} elseif (isset($_GET['id'])) {
   $item = current(array_filter($items, function ($item) {
     return $item['id'] == $_GET['id'];
   }));
@@ -31,6 +55,7 @@ if (isset($_GET['id'])) {
         <h1 class="display-4 text-center mb-3 p-5">Item</h1>
 
         <form method="post" class="bg-light border border-1 p-4">
+          <input type="hidden" name="id" value="<?php echo $item['id']; ?>">
           <div class="form-group mb-3">
             <label class="form-label" for="task">Task</label>
             <input class="form-control" id="task" name="task" value="<?php echo $item['task']; ?>">
@@ -52,6 +77,15 @@ if (isset($_GET['id'])) {
           <a class="btn btn-secondary" href="index.php">Cancel</a>
         </form>
 
+        <?php if (isset($errors) && count($errors)) : ?>
+          <div class="alert alert-danger mt-3">
+            <ul class="mb-0">
+              <?php foreach ($errors as $error): ?>
+                <li><?php echo $error; ?></li>
+              <?php endforeach; ?>
+            </ul>
+          </div>
+        <?php endif; ?>
       </div>
     </div>
   </main>
