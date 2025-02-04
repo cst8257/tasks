@@ -55,11 +55,13 @@ function validate($item)
  */
 function getItems($completed)
 {
-  global $items;
+  global $db;
 
-  return array_filter($items, function ($item) use ($completed) {
-    return $item['completed'] === $completed;
-  });
+  $sql = "SELECT * FROM items WHERE completed = :completed";
+  $stmt = $db->prepare($sql);
+  $stmt->execute([":completed" => $completed]);
+
+  return $stmt->fetchAll();
 }
 
 /**
@@ -69,11 +71,12 @@ function getItems($completed)
  */
 function getItem($id)
 {
-  global $items;
+  global $db;
+  $sql = "SELECT * FROM items WHERE id = :id";
+  $stmt = $db->prepare($sql);
+  $stmt->execute([':id' => $id]);
 
-  return current(array_filter($items, function ($item) use ($id) {
-    return $item['id'] == $id;
-  }));
+  return $stmt->fetch();
 }
 
 /**
@@ -83,18 +86,17 @@ function getItem($id)
  */
 function addItem($item)
 {
-  global $items;
-  $id = end($items)['id'] + 1;
+  global $db;
 
-  array_push($items, [
-    'id' => end($items)['id'] + 1,
-    'task' => $_POST['task'],
-    'completed' => false,
-    'priority' => 0
+  $sql = "INSERT INTO items (task, completed, priority) VALUES (:task, :completed, :priority)";
+  $stmt = $db->prepare($sql);
+  $stmt->execute([
+    ':task' => $item['task'],
+    ':completed' => isset($item['completed']) ? 1 : 0,
+    ':priority' => $item['priority']
   ]);
 
-  $_SESSION['items'] = $items;
-  return $id;
+  return $db->lastInsertId();
 }
 
 /**
@@ -104,21 +106,18 @@ function addItem($item)
  */
 function updateItem($item)
 {
-  global $items;
 
-  $items = array_map(function ($i) use ($item) {
-    if ($i['id'] == $item['id']) {
-      return [
-        'id' => $item['id'],
-        'task' => $item['task'],
-        'completed' => isset($item['completed']),
-        'priority' => (int)$item['priority']
-      ];
-    }
-    return $i;
-  }, $items);
+  global $db;
 
-  $_SESSION['items'] = $items;
+  $sql = "UPDATE items SET task = :task, completed = :completed, priority = :priority WHERE id = :id";
+  $stmt = $db->prepare($sql);
+  $stmt->execute([
+    ':task' => $item['task'],
+    ':completed' => isset($item['completed']) ? 1 : 0,
+    ':priority' => $item['priority'],
+    ':id' => $item['id']
+  ]);
+
   return $item['id'];
 }
 
@@ -129,15 +128,11 @@ function updateItem($item)
  */
 function deleteItem($id)
 {
-  global $items;
+  global $db;
 
-  $index = array_key_first(array_filter($items, function ($item) use ($id) {
-    return $item['id'] == $id;
-  }));
+  $sql = "DELETE FROM items WHERE id = :id";
+  $stmt = $db->prepare($sql);
+  $stmt->execute([':id' => $id]);
 
-  unset($items[$index]);
-
-  $_SESSION['items'] = $items;
-
-  return !isset($items[$index]);
+  return $stmt->rowCount() === 1;
 }
