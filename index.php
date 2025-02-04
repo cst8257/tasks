@@ -1,15 +1,21 @@
 <?php
 require "data.php";
+require "functions.php";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  array_push($items, [
+  $item = sanitize([
     'id' => end($items)['id'] + 1,
     'task' => $_POST['task'],
     'completed' => false,
     'priority' => 0
   ]);
+  $errors = validate($item);
 
-  $_SESSION['items'] = $items;
+  if (count($errors) === 0) {
+    array_push($items, $item);
+
+    $_SESSION['items'] = $items;
+  }
 }
 
 $todo = array_filter($items, function ($item) {
@@ -54,6 +60,16 @@ $done = array_filter($items, function ($item) {
             <?php endforeach; ?>
           </div>
         </div>
+
+        <?php if (isset($errors) && count($errors)) : ?>
+          <div class="alert alert-danger mt-3">
+            <ul class="mb-0">
+              <?php foreach ($errors as $error): ?>
+                <li><?php echo $error; ?></li>
+              <?php endforeach; ?>
+            </ul>
+          </div>
+        <?php endif; ?>
       </div>
     </div>
   </main>
