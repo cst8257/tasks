@@ -1,24 +1,20 @@
 <?php
 require "data.php";
+require "functions.php";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  array_push($items, [
-    'id' => end($items)['id'] + 1,
-    'task' => $_POST['task'],
-    'completed' => false,
-    'priority' => 0
-  ]);
+  $item = sanitize(['task' => $_POST['task'], 'priority' => 0]);
+  $errors = validate($item);
 
-  $_SESSION['items'] = $items;
+  if (count($errors) === 0) {
+    addItem($item);
+  }
 }
 
-$todo = array_filter($items, function ($item) {
-  return !$item['completed'];
-});
+$todo = getItems(false);
+$done = getItems(true);
 
-$done = array_filter($items, function ($item) {
-  return $item['completed'];
-});
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -36,6 +32,15 @@ $done = array_filter($items, function ($item) {
       <div class="col-6 offset-3">
         <h1 class="display-4 text-center mb-3 p-5">Tasks</h1>
 
+        <?php if (isset($errors) && count($errors)) : ?>
+          <div class="alert alert-danger mb-3">
+            <ul class="mb-0">
+              <?php foreach ($errors as $error): ?>
+                <li><?php echo $error; ?></li>
+              <?php endforeach; ?>
+            </ul>
+          </div>
+        <?php endif; ?>
         <form method="post" class="input-group mb-3">
           <input class="form-control" name="task" placeholder="New task...">
         </form>
