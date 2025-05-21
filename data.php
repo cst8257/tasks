@@ -1,10 +1,8 @@
 <?php
-$dsn = 'mysql:host=localhost;dbname=tasks';
-$username = 'root';
-$password = '';
+$dsn = 'sqlite:tasks.sqlite';
 
 try {
-  $db = new PDO($dsn, $username, $password);
+  $db = new PDO($dsn);
 } catch (PDOException $e) {
   echo $e->getMessage();
   exit();

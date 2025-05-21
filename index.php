@@ -11,8 +11,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 }
 
-$todo = getItems(false);
-$done = getItems(true);
+$todo = getItems(0);
+$done = getItems(1);
 
 
 ?>
